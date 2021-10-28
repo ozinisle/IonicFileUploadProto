@@ -1,0 +1,17 @@
+<html>
+    <body>
+        <h1>
+            Welcome to <%=title%>
+        </h1>
+
+        <ul>
+            <% data.map((i)=>{
+                %> <li><%=i%></li><%
+            })
+
+            %>
+
+            <li><a href="sessions">Sessions</a></li>
+        </ul>
+    </body>
+</html>

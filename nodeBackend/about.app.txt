@@ -1,0 +1,476 @@
+1. Created with the following set of commands to begin with
+
+    > npm init  # >>> helped create the package.json file
+
+    > npm install express   # >>> helped install express package
+
+2. Setting up the server
+
+    2.1. Create app.js with the following code
+
+        const express = require("express");
+
+        const app = express();
+
+        app.get('/',(req,res)=>{
+            res.send('Hello from my app');
+        });
+
+        app.listen(3000,()=>{
+            console.log('listening on port 3000');
+        });
+
+    2.2. open terminal from the app root directory and issue the following commands
+
+        > node app.js
+
+        This will run the server 
+
+3. Debugging options
+
+    3.1 Chalk Package
+    Helps write specific portion of text in specific colors. Example,
+    console.log('listening on port ' + chalk.green('3000'));
+
+        3.1.1. In terminal
+            > npm install chalk
+
+        3.1.2 in app .js
+            > const chalk = require('chalk');
+
+    
+
+    3.2 Debug Package
+        3.2.1. In terminal
+            > npm install debug
+        
+        3.2.2 in app .js
+        replace console.log with debug, Example
+            > debug('listening on port ' + chalk.green('3000'));
+        
+        debug only runs when you run in debug mode
+
+        stop your node server and run the following command to see all the debug messages from the server
+        > DEBUG=* node app.js
+
+        CAUTION: "DEBUG = * node app.js" won't work, "DEBUG=*" should not have empty space inbetween it
+
+        Now see only your debug messages for the app, kill the server and run the following command to start the server
+        > DEBUG=app node app.js
+
+    3.3. Morgan Package
+        3.3.1. In terminal
+            > npm install morgan
+
+        3.2.2 in app .js 
+        replace console.log with debug, Example
+            > const morgan = require('morgan');
+            > app.use(morgan('combined'));
+
+    Now run your server and open the app in the browser. You will be seeing messages like the following on the terminal console.
+
+    (base) computerName:nodeBackend UserName$ DEBUG=app node app.js
+    app listening on port 3000 +0ms
+    ::1 - - [09/Oct/2021:05:33:58 +0000] "GET / HTTP/1.1" 304 - "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36"
+    
+        3.2.3 in app .js
+        replace console.log with debug, Example
+            > const morgan = require('morgan');
+            > app.use(morgan('comtinybined'));
+
+    Now run your server and open the app in the browser. You will be seeing messages like the following on the terminal console.
+
+    (base) computerName:nodeBackend UserName$ DEBUG=app node app.js
+    app listening on port 3000 +0ms
+    GET / 304 - - 2.500 ms
+       
+ 4. Serving index.html     
+
+    4.1. Create a folder named "public" in the root folder and create a index.html file inside it, with the following contents.
+
+    <head>
+        <body>
+            Welcome to my html page
+        </body>
+    </head>
+
+    4.2. Configure static files in app.js with following code
+
+    > const path = require('path');  #>>> in built, does not require a npm install
+    > app.use(express.static(path.join(__dirname,'/public/')));
+
+    Restart your server and refresh the page on browser. You will see the index.html getting populated
+
+    If index.html does not exist in the public folder then app log will get printed
+
+5. Setting up tooling
+    5.1. NPM scripts
+        5.1.1 npm start
+        Instead of running "DEBUG=app node app.js" every time in the console to run our application, we can add the same to the "scripts" tag in package.json file as follows
+
+        "scripts": {
+            "start": "DEBUG=app node app.js",
+            "test": "echo \"Error: no test specified\" && exit 1"
+        },
+
+        and run  "npm start" to start your application and server
+
+        5.1.2 Adding custom npm scripts 
+        Say you want to run the app in complete debug mode, instead of running the command "DEBUG=* node app.js" in the console, you can add it as a say "debug" attribute in the npmscripts tag as follows
+
+        "scripts": {
+            "start": "DEBUG=app node app.js",
+            "debug": "DEBUG=* node app.js",
+            "test": "echo \"Error: no test specified\" && exit 1"
+        },
+
+        and just do the following in terminal
+        
+        > npm run debug
+
+        NOTE: Except for "start" and "test" commands which you can run using the commands 
+            "npm start" and "npm test", 
+        you need to run other npm scripts with "run" keyword via 
+            "npm run <script-name>" 
+
+    5.2. Nodemon
+
+    Watches for changes and auto restarts the server when ever changes occur
+        5.2.1 In terminal
+            > npm install Nodemon
+
+        5.2.2 In package.json
+        add "nodemonConfig"
+            "nodemonConfig": {
+                "restartable": "rs",
+                "delay": 2500
+            }
+
+        and modify start and debug scripts with "nodemon" instead of "node" as follows in the package.json
+
+            "scripts": {
+                "start": "DEBUG=app nodemon app.js",
+                "debug": "DEBUG=* nodemon app.js",
+                "test": "echo \"Error: no test specified\" && exit 1"
+            },
+
+        5.2.3  Testing in terminal
+        After the above mentioned changes are made, run the following commands 
+        
+            5.2.3.1
+                >npm start
+                starts the node server with nodemon Configure
+            
+            5.2.3.2
+                >rs
+                just type rs after the server has started. This will restart the server, illustrated as follows
+
+                    [nodemon] starting `node app.js`
+                    app listening on port 3000 +0ms
+                    rs
+                    [nodemon] starting `node app.js`
+                    app listening on port 3000 +0ms
+
+            5.2.3.3
+                >make any changes in app.js and save the file to witness that the node server has been restarted. You shoud be seeing something like the following
+
+                    [nodemon] starting `node app.js`
+                    app listening on port 3000 +0ms
+                    [nodemon] restarting due to changes...
+                    [nodemon] starting `node app.js`
+                    app listening to port 3000 +0ms
+
+
+    5.3. Environmental Variables
+    Can add enironmental variables to nodemon config. Help address the hard coding problems and enables configuration
+        
+        5.3.1 in package.json
+        Add "env" configurations in the "nodemonConfig" section
+        "nodemonConfig": {
+            "restartable": "rs",
+            "delay": 2500,
+            "env": {
+                "PORT": 4000
+            }
+        }
+
+        5.3.2 in app.js
+        add/modify the following  lines of code
+
+        const PORT = process.env.PORT || 3000;
+
+        app.listen(PORT,()=>{
+            debug('listening to port ' + chalk.green(PORT));
+        });
+
+        5.3.3 Restart Server in terminal
+        Nodemon configuration changes does not automatically get updated with auto restart privided by Nodemon. 
+        Hence manual server restart is required in case of Nodemon configuration changes
+
+    6. Templating Engines
+        6.1. Templating Engines - Using EJS
+            6.1.1. in terminal
+            > npm i ejs #>>> installs EJS templating Engine
+
+            6.1.2. create folder src/view in the project root folder
+
+            Create a file named "index.ejs" inside it with the following code
+
+                <html>
+                    <body>
+                        <h1>
+                            Welcome to <%=title%>
+                        </h1>
+                    </body>
+                </html>
+
+            6.1.3. in app.js
+            //add the following lines of code before the route configration is declared and after the static file configurations are declared
+            app.set('views','.src/views');
+            app.set('view engine','ejs');
+
+            Make the following code modification to map index.ejs to project root url
+
+            app.get('/',(req,res)=>{
+                //res.send('Hello from my app');
+                res.render('index',{title:'Welcome to TechDotMasterpiece'});
+            });
+
+            6.1.4 Delete index.html
+            Only then the rendering engine will accept index.ejs as alternative
+
+
+        6.2. Passing data to a page
+            6.2.1 in app.js
+            Modify the following code segment. Infer that you are sending data as array to the root url page
+
+            app.get('/',(req,res)=>{
+                //res.send('Hello from my app');
+                //res.render('index',{title:'Welcome to TechDotMasterpiece'});
+
+                //passing data
+                res.render('index',{title:'Welcome to TechDotMasterpiece',data:['a','b','c']});
+                
+            });
+
+            6.2.2 in index.ejs
+            Add the following code segment to view a list of data items on the index page rendered in the browser
+
+                <ul>
+                    <% data.map((i)=>{
+                        %> <li><%=i%></li><%
+                    })
+
+                    %>
+                </ul>
+
+    7. Using routing to build multiple pages
+
+    7.1. Implementing navigation
+
+        7.1.1. in index.ejs
+        Add a sessions link
+
+            <li><a href="sessions">Sessions</a></li>
+
+        7.1.2. in app.js
+        Add the following code to respond to the route request https://localhost:4000/sessions, to see a page with text "Welcome to sessions page". 
+
+        app.get('/sessions',(req,res)=>{
+            res.send('Welcome to sessions page');
+        });
+
+    7.2. Implementing a Router
+
+        7.2.1 in app.js
+        Make the following code additions/modifications
+            
+            const app = express();
+            const sessionsRouter = express.Router();
+            .....
+            sessionsRouter.route('/')
+            .get((req,res)=>{
+                res.send('hello sessions')
+            })
+
+            sessionsRouter.route('/1')
+                .get((req,res)=>{
+                    res.send('hello single sessions')
+                })
+
+            // app.get('/sessions',(req,res)=>{
+            //     res.send('Welcome to sessions page');
+            // });
+            app.use('/sessions',sessionsRouter);
+        
+        7.2.2 Validate in browser
+        check for the urls https://localhost:4000/sessions and https://localhost:4000/sessions/1 to see corresponding pages
+
+    7.3. Rendering the page
+        7.3.1.  in app.js
+        do the following code modifications
+
+            sessionsRouter.route('/')
+            .get((req,res)=>{
+                //res.send('hello sessions')
+                res.render('sessions',{
+                    sessions:[
+                        { title:'Session 1', description: 'this is session 1'},
+                        { title:'Session 2', description: 'this is session 2'},
+                        { title:'Session 3', description: 'this is session 3'},
+                        { title:'Session 4', description: 'this is session 4'}
+                    ]
+                });
+            });
+
+        7.3.2. create sessions.ejs under src/views folder with the following code
+            <html>
+                <body>
+                    <h1>
+                        Welcome to Sessions
+                    </h1>
+
+                    <% sessions.map((session)=>{%>
+                        <div>
+                            <h3><%=session.title%></h3>
+                            <p><%=session.description%></p>
+                        </div>
+                    <% })%>
+                </body>
+            </html>
+
+            7.3.3. Check the route http://localhost:4000/sessions in the browser.
+            Infer that sessions.ejs is auto picked for this route due to configuration which was set as
+
+            app.set('views','./src/views');
+
+            Infer that default server route http://localhost:4000 will look for index.html, which we deleted, and the above configuration made it look for out index.ejs. 
+
+            Now when we hit "http://localhost:4000/sessions" it automatically looks for "sessions.ejs" file
+
+    7.4. Passing  data
+        7.4.1. create data file
+        create src/data/sessions.json with following data
+            {
+                "sessions":[
+                    { "title":"Session 1", "description": "this is session 1"},
+                    { "title":"Session 2", "description": "this is session 2"},
+                    { "title":"Session 3", "description": "this is session 3"},
+                    { "title":"Session 4", "description": "this is session 4"}
+                ]
+            }
+
+        7.4.2. in app.js
+        Add
+            const sessionData = require('./src/data/sessions.json');
+
+        modify
+            sessionsRouter.route('/')
+                .get((req,res)=>{
+                    //res.send('hello sessions')
+                    // res.render('sessions',{
+                    //     sessions:[
+                    //         { title:'Session 1', description: 'this is session 1'},
+                    //         { title:'Session 2', description: 'this is session 2'},
+                    //         { title:'Session 3', description: 'this is session 3'},
+                    //         { title:'Session 4', description: 'this is session 4'}
+                    //     ]
+                    // });
+                    res.render('sessions',sessionsData);
+                });
+
+        7.4.3 in sessions.ejs
+        modify code as follows
+            <html>
+                <body>
+                    <h1>
+                        Welcome to Sessions
+                    </h1>
+
+                    <% sessions.map((session,index)=>{%>
+                        <div>
+                            <h3><%=session.title%></h3>
+                            <p><%=session.description%></p>
+                            <a href="sessions/<%=index%>">Learn more</a>
+                        </div>
+                    <% })%>
+                </body>
+            </html>
+    7.5 Creating a Single item route
+        7.5.1. create session.ejs
+            <html>
+                <body>
+                    <h1>
+                        Welcome to Single Session
+                    </h1>
+                    <div>
+                        <h3><%=session.title%></h3>
+                        <p><%=session.description%></p>
+                    </div>
+                </body>
+            </html>
+
+        7.5.2. modify app.js
+            //sessionsRouter.route('/1')
+            sessionsRouter.route('/:id')
+                .get((req,res)=>{
+                    const id = req.params.id;
+                    //res.send('hello single sessions >>> ' + id);
+                    res.render('session',{
+                        session:sessionsData.sessions[id]
+                    });
+                });
+
+        7.5.3. check in browser
+
+    7.6. Separate router file
+        7.6.1 Create src/routers/sessionsRouter.js
+        with following code
+
+            const express = require("express");
+            const sessionsRouter = express.Router();
+            const sessionsData = require('../data/sessions.json');
+
+            sessionsRouter.route('/')
+                .get((req,res)=>{
+                    res.render('sessions',sessionsData);
+                });
+
+            sessionsRouter.route('/:id')
+                .get((req,res)=>{
+                    const id = req.params.id;
+                    res.render('session',{
+                        session:sessionsData.sessions[id]
+                    }
+                    )
+                });
+
+            module.exports = sessionsRouter;
+
+        7.6.2 in app.js
+
+        remove the code which has been moved from app.js to create "sessionsRouter.js" file
+
+        and import "sessionsRouter.js" file
+            
+            const app = express();
+            const sessionsRouter = require('./src/routers/sessionsRouter');
+        
+        7.6.3 check in browser. All navigations has to happen flawlessly without issues
+
+8. Connecting to a database
+    8.1. Setting up a mongodb
+        8.1.1.Go to mongodb.com and create a free account 
+        8.1.2.Create a cluster
+        8.1.3.Connect the current IP 
+        8.1.4.Create a database user with a strong password
+            techdotmasterpiece_admin/_w#v236$$tDiM4s
+        8.1.5. Choose a connection method
+            Select "connect your application"
+            Select your driver and version - Node.js version 4 or later
+        
+            Get connection string to add to our application code
+
+            mongodb+srv://techdotmasterpiece_admin:<password>@techdotmasterpiece.6al7f.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+
+    8.2. Creating Admin Routes

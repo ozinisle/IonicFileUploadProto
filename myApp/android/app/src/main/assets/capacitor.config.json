@@ -1,0 +1,6 @@
+{
+	"appId": "com.oz.camTest",
+	"appName": "CamTest",
+	"webDir": "www",
+	"bundledWebRuntime": false
+}
